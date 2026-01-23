@@ -1,0 +1,202 @@
+================================================================================
+TEST QUESTIONS VALIDATION REPORT
+================================================================================
+
+SUMMARY
+--------------------------------------------------------------------------------
+Total Questions: 20
+Passed: 20 (100.0%)
+Failed: 0 (0.0%)
+
+DETAILED RESULTS
+--------------------------------------------------------------------------------
+
+[PASS] Question #1
+  Question: What is the minimum collection rate recorded in 2022?
+  SQL: SELECT MIN(collection_rate) as min_collection_rate FROM water_data WHERE year = 2022
+  Execution Time: 2.28ms
+  Rows Returned: 1
+  Columns Returned: 1
+  Sample Data (first row):
+    min_collection_rate: 0.9347
+
+[PASS] Question #2
+  Question: How many days in 2023 had operating margin below 15%?
+  SQL: SELECT COUNT(*) as days_count FROM water_data WHERE year = 2023 AND operating_margin < 0.15
+  Execution Time: 2.19ms
+  Rows Returned: 1
+  Columns Returned: 1
+  Sample Data (first row):
+    days_count: 0
+
+[PASS] Question #3
+  Question: Show me the top 5 days with highest cash reserve in 2024
+  SQL: SELECT date, cash_reserve FROM water_data WHERE year = 2024 ORDER BY cash_reserve DESC LIMIT 5
+  Execution Time: 2.29ms
+  Rows Returned: 5
+  Columns Returned: 2
+  Sample Data (first row):
+    date: 2024-12-26
+    cash_reserve: 5.0
+
+[PASS] Question #4
+  Question: What is the total accounts receivable for Q2 2023?
+  SQL: SELECT SUM(total_ar) as total_ar FROM water_data WHERE year = 2023 AND quarter = 'Q2'
+  Execution Time: 1.57ms
+  Rows Returned: 1
+  Columns Returned: 1
+  Sample Data (first row):
+    total_ar: 108.73
+
+[PASS] Question #5
+  Question: Which month in 2022 had the lowest water revenue?
+  SQL: SELECT month, SUM(water_revenue) as total_revenue FROM water_data WHERE year = 2022 GROUP BY month ORDER BY total_revenue ASC LIMIT 1
+  Execution Time: 1.88ms
+  Rows Returned: 1
+  Columns Returned: 2
+  Sample Data (first row):
+    month: 9
+    total_revenue: 3.69
+
+[PASS] Question #6
+  Question: Calculate the percentage of days where debt service coverage exceeded 2.5 in 2024
+  SQL: SELECT (COUNT(CASE WHEN debt_service_coverage > 2.5 THEN 1 END) * 100.0 / COUNT(*)) as percentage FROM water_data WHERE year = 2024
+  Execution Time: 2.40ms
+  Rows Returned: 1
+  Columns Returned: 1
+  Sample Data (first row):
+    percentage: 100.0
+
+[PASS] Question #7
+  Question: Show me all records where revenue variance was negative in Q3 2023
+  SQL: SELECT date, actual_revenue, budgeted_revenue, revenue_variance FROM water_data WHERE year = 2023 AND quarter = 'Q3' AND revenue_variance < 0 ORDER BY date
+  Execution Time: 3.52ms
+  Rows Returned: 0
+  Columns Returned: 4
+
+[PASS] Question #8
+  Question: What is the difference between maximum and minimum cost per gallon in 2024?
+  SQL: SELECT MAX(cost_per_gallon) - MIN(cost_per_gallon) as difference FROM water_data WHERE year = 2024
+  Execution Time: 2.64ms
+  Rows Returned: 1
+  Columns Returned: 1
+  Sample Data (first row):
+    difference: 0.05999999999999961
+
+[PASS] Question #9
+  Question: How many records exist for each quarter across all years?
+  SQL: SELECT quarter, COUNT(*) as record_count FROM water_data GROUP BY quarter ORDER BY quarter
+  Execution Time: 1.77ms
+  Rows Returned: 4
+  Columns Returned: 2
+  Sample Data (first row):
+    quarter: Q1
+    record_count: 271
+
+[PASS] Question #10
+  Question: Show me dates where both collection rate was above 95% and operating margin was above 20%
+  SQL: SELECT date, collection_rate, operating_margin FROM water_data WHERE collection_rate > 0.95 AND operating_margin > 0.20 ORDER BY date
+  Execution Time: 2.69ms
+  Rows Returned: 155
+  Columns Returned: 3
+  Sample Data (first row):
+    date: 2023-05-13
+    collection_rate: 0.9519
+    operating_margin: 0.2012
+
+[PASS] Question #11
+  Question: What is the average days sales outstanding for Q4 2022?
+  SQL: SELECT AVG(days_sales_outstanding) as avg_dso FROM water_data WHERE year = 2022 AND quarter = 'Q4'
+  Execution Time: 1.69ms
+  Rows Returned: 1
+  Columns Returned: 1
+  Sample Data (first row):
+    avg_dso: 36.630434782608695
+
+[PASS] Question #12
+  Question: Which year had the highest average non-revenue water percentage?
+  SQL: SELECT year, AVG(non_revenue_water_pct) as avg_nrw_pct FROM water_data GROUP BY year ORDER BY avg_nrw_pct DESC LIMIT 1
+  Execution Time: 2.33ms
+  Rows Returned: 1
+  Columns Returned: 2
+  Sample Data (first row):
+    year: 2022
+    avg_nrw_pct: 0.22572958904109588
+
+[PASS] Question #13
+  Question: Show me the 10 days with the lowest collection rate in 2023
+  SQL: SELECT date, collection_rate FROM water_data WHERE year = 2023 ORDER BY collection_rate ASC LIMIT 10
+  Execution Time: 1.74ms
+  Rows Returned: 10
+  Columns Returned: 2
+  Sample Data (first row):
+    date: 2023-08-14
+    collection_rate: 0.9384
+
+[PASS] Question #14
+  Question: What was the total monthly expenses for all of 2022?
+  SQL: SELECT SUM(monthly_expenses) as total_expenses FROM water_data WHERE year = 2022
+  Execution Time: 2.74ms
+  Rows Returned: 1
+  Columns Returned: 1
+  Sample Data (first row):
+    total_expenses: 32.48
+
+[PASS] Question #15
+  Question: Calculate the ratio of actual revenue to budgeted revenue for each quarter in 2023
+  SQL: SELECT quarter, SUM(actual_revenue) / SUM(budgeted_revenue) as revenue_ratio FROM water_data WHERE year = 2023 GROUP BY quarter ORDER BY quarter
+  Execution Time: 2.12ms
+  Rows Returned: 4
+  Columns Returned: 2
+  Sample Data (first row):
+    quarter: Q1
+    revenue_ratio: 1.1710097719869705
+
+[PASS] Question #16
+  Question: Show me records where cash reserve was between 3.5 and 5.0 million
+  SQL: SELECT date, cash_reserve FROM water_data WHERE cash_reserve BETWEEN 3.5 AND 5.0 ORDER BY date
+  Execution Time: 5.68ms
+  Rows Returned: 1096
+  Columns Returned: 2
+  Sample Data (first row):
+    date: 2022-01-01
+    cash_reserve: 4.28
+
+[PASS] Question #17
+  Question: What is the median operating margin for 2024?
+  SQL: SELECT operating_margin FROM water_data WHERE year = 2024 ORDER BY operating_margin LIMIT 1 OFFSET (SELECT COUNT(*) FROM water_data WHERE year = 2024) / 2
+  Execution Time: 2.05ms
+  Rows Returned: 1
+  Columns Returned: 1
+  Sample Data (first row):
+    operating_margin: 0.2017
+
+[PASS] Question #18
+  Question: How many days had outstanding debt above 7 million in 2023?
+  SQL: SELECT COUNT(*) as days_count FROM water_data WHERE year = 2023 AND outstanding_debt > 7.0
+  Execution Time: 2.21ms
+  Rows Returned: 1
+  Columns Returned: 1
+  Sample Data (first row):
+    days_count: 365
+
+[PASS] Question #19
+  Question: Show me the revenue trend for the first 30 days of 2024
+  SQL: SELECT date, actual_revenue FROM water_data WHERE year = 2024 AND date >= '2024-01-01' AND date <= '2024-01-30' ORDER BY date
+  Execution Time: 2.90ms
+  Rows Returned: 30
+  Columns Returned: 2
+  Sample Data (first row):
+    date: 2024-01-01
+    actual_revenue: 0.08
+
+[PASS] Question #20
+  Question: What is the standard deviation of collection rate for 2023?
+  SQL: SELECT SQRT(AVG(collection_rate * collection_rate) - AVG(collection_rate) * AVG(collection_rate)) as std_dev FROM water_data WHERE year = 2023
+  Execution Time: 20.79ms
+  Rows Returned: 1
+  Columns Returned: 1
+  Sample Data (first row):
+    std_dev: 0.0032756714340823707
+
+================================================================================

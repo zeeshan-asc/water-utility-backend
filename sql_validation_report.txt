@@ -1,0 +1,200 @@
+================================================================================
+SQL QUERY VALIDATION REPORT
+================================================================================
+
+SUMMARY
+--------------------------------------------------------------------------------
+Total Queries: 20
+Passed: 20 (100.0%)
+Failed: 0 (0.0%)
+Execution Time: 0.07 seconds
+
+DETAILED RESULTS
+--------------------------------------------------------------------------------
+
+[PASS] Query #1
+  Question: What was the total actual revenue in 2024?
+  SQL: SELECT SUM(actual_revenue) as total_revenue FROM water_data WHERE year = 2024...
+  Execution Time: 7.37ms
+  Rows Returned: 1
+  Columns Returned: 1
+  Sample Data (first row):
+    total_revenue: 29.330000000000002
+
+[PASS] Query #2
+  Question: Show me the revenue variance for Q1 2024
+  SQL: SELECT date, actual_revenue, budgeted_revenue, revenue_variance FROM water_data WHERE year = 2024 AN...
+  Execution Time: 3.70ms
+  Rows Returned: 91
+  Columns Returned: 4
+  Sample Data (first row):
+    date: 2024-01-01
+    actual_revenue: 0.08
+    budgeted_revenue: 0.07
+    revenue_variance: 0.01
+
+[PASS] Query #3
+  Question: What is the average operating margin for 2023?
+  SQL: SELECT AVG(operating_margin) as avg_operating_margin FROM water_data WHERE year = 2023...
+  Execution Time: 1.73ms
+  Rows Returned: 1
+  Columns Returned: 1
+  Sample Data (first row):
+    avg_operating_margin: 0.194252602739726
+
+[PASS] Query #4
+  Question: Which departments had the highest budget variance in 2024?
+  SQL: SELECT department, SUM(budget) as total_budget, SUM(actual) as total_actual, SUM(variance) as total_...
+  Execution Time: 4.08ms
+  Rows Returned: 0
+  Columns Returned: 4
+
+[PASS] Query #5
+  Question: What was the debt service coverage ratio for each quarter in 2024?
+  SQL: SELECT quarter, AVG(debt_service_coverage) as avg_coverage FROM water_data WHERE year = 2024 GROUP B...
+  Execution Time: 1.82ms
+  Rows Returned: 4
+  Columns Returned: 2
+  Sample Data (first row):
+    quarter: Q1
+    avg_coverage: 2.896923076923077
+
+[PASS] Query #6
+  Question: Show me months with non-revenue water percentage above 25%
+  SQL: SELECT date, year, month, non_revenue_water_pct FROM water_data WHERE non_revenue_water_pct > 0.25 O...
+  Execution Time: 5.76ms
+  Rows Returned: 0
+  Columns Returned: 4
+
+[PASS] Query #7
+  Question: What is the total outstanding debt as of the latest date?
+  SQL: SELECT date, outstanding_debt FROM water_data ORDER BY date DESC LIMIT 1...
+  Execution Time: 1.73ms
+  Rows Returned: 1
+  Columns Returned: 2
+  Sample Data (first row):
+    date: 2024-12-31
+    outstanding_debt: 8.03
+
+[PASS] Query #8
+  Question: Which year had the highest total actual revenue?
+  SQL: SELECT year, SUM(actual_revenue) as total_revenue FROM water_data GROUP BY year ORDER BY total_reven...
+  Execution Time: 2.03ms
+  Rows Returned: 1
+  Columns Returned: 2
+  Sample Data (first row):
+    year: 2024
+    total_revenue: 29.330000000000002
+
+[PASS] Query #9
+  Question: Show me all alerts with confidence level above 0.8
+  SQL: SELECT date, alert_type, description, confidence_level FROM alerts WHERE confidence_level > 0.8 ORDE...
+  Execution Time: 1.72ms
+  Rows Returned: 0
+  Columns Returned: 4
+
+[PASS] Query #10
+  Question: What are the projected revenues for all scenarios in 2024?
+  SQL: SELECT scenario, AVG(projected_revenue) as avg_projected_revenue FROM scenarios WHERE date LIKE '202...
+  Execution Time: 1.59ms
+  Rows Returned: 0
+  Columns Returned: 2
+
+[PASS] Query #11
+  Question: Calculate the collection rate trend over the last 12 months
+  SQL: SELECT date, collection_rate FROM water_data ORDER BY date DESC LIMIT 12...
+  Execution Time: 1.32ms
+  Rows Returned: 12
+  Columns Returned: 2
+  Sample Data (first row):
+    date: 2024-12-31
+    collection_rate: 0.9516
+
+[PASS] Query #12
+  Question: What is the average cost per gallon for each quarter?
+  SQL: SELECT quarter, AVG(cost_per_gallon) as avg_cost_per_gallon FROM water_data GROUP BY quarter ORDER B...
+  Execution Time: 2.96ms
+  Rows Returned: 4
+  Columns Returned: 2
+  Sample Data (first row):
+    quarter: Q1
+    avg_cost_per_gallon: 4.3902583025830255
+
+[PASS] Query #13
+  Question: Show me departments with actual spending exceeding budget by more than 10%
+  SQL: SELECT date, department, budget, actual, variance_pct FROM departments WHERE variance_pct > 0.10 ORD...
+  Execution Time: 2.17ms
+  Rows Returned: 0
+  Columns Returned: 5
+
+[PASS] Query #14
+  Question: What is the cash reserve trend over time?
+  SQL: SELECT date, cash_reserve FROM water_data ORDER BY date...
+  Execution Time: 4.42ms
+  Rows Returned: 1096
+  Columns Returned: 2
+  Sample Data (first row):
+    date: 2022-01-01
+    cash_reserve: 4.28
+
+[PASS] Query #15
+  Question: Which scenarios show healthy financial viability?
+  SQL: SELECT date, scenario, financial_viability FROM scenarios WHERE financial_viability = 'Healthy' OR f...
+  Execution Time: 6.30ms
+  Rows Returned: 0
+  Columns Returned: 3
+
+[PASS] Query #16
+  Question: What was the total accounts receivable for 2023?
+  SQL: SELECT SUM(total_ar) as total_ar FROM water_data WHERE year = 2023...
+  Execution Time: 2.40ms
+  Rows Returned: 1
+  Columns Returned: 1
+  Sample Data (first row):
+    total_ar: 437.0
+
+[PASS] Query #17
+  Question: Show me the monthly revenue and expenses for 2024
+  SQL: SELECT date, monthly_revenue, monthly_expenses, monthly_margin FROM water_data WHERE year = 2024 ORD...
+  Execution Time: 2.80ms
+  Rows Returned: 366
+  Columns Returned: 4
+  Sample Data (first row):
+    date: 2024-01-01
+    monthly_revenue: 0.08
+    monthly_expenses: 0.09
+    monthly_margin: -0.01
+
+[PASS] Query #18
+  Question: What is the average days sales outstanding for each year?
+  SQL: SELECT year, AVG(days_sales_outstanding) as avg_dso FROM water_data GROUP BY year ORDER BY year...
+  Execution Time: 2.06ms
+  Rows Returned: 3
+  Columns Returned: 2
+  Sample Data (first row):
+    year: 2022
+    avg_dso: 37.02465753424657
+
+[PASS] Query #19
+  Question: Which months had the highest water revenue?
+  SQL: SELECT date, water_revenue FROM water_data ORDER BY water_revenue DESC LIMIT 10...
+  Execution Time: 2.15ms
+  Rows Returned: 10
+  Columns Returned: 2
+  Sample Data (first row):
+    date: 2023-05-10
+    water_revenue: 0.17
+
+[PASS] Query #20
+  Question: Show me the debt service coverage ratio compared to required minimum
+  SQL: SELECT date, debt_service_coverage, required_minimum, actual_coverage FROM water_data ORDER BY date ...
+  Execution Time: 1.63ms
+  Rows Returned: 12
+  Columns Returned: 4
+  Sample Data (first row):
+    date: 2024-12-31
+    debt_service_coverage: 2.91
+    required_minimum: 1.5
+    actual_coverage: 2.91
+
+================================================================================

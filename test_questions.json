@@ -1,0 +1,102 @@
+[
+    {
+        "question": "What is the minimum collection rate recorded in 2022?",
+        "sql": "SELECT MIN(collection_rate) as min_collection_rate FROM water_data WHERE year = 2022",
+        "category": "aggregation_min"
+    },
+    {
+        "question": "How many days in 2023 had operating margin below 15%?",
+        "sql": "SELECT COUNT(*) as days_count FROM water_data WHERE year = 2023 AND operating_margin < 0.15",
+        "category": "count_filter"
+    },
+    {
+        "question": "Show me the top 5 days with highest cash reserve in 2024",
+        "sql": "SELECT date, cash_reserve FROM water_data WHERE year = 2024 ORDER BY cash_reserve DESC LIMIT 5",
+        "category": "top_n"
+    },
+    {
+        "question": "What is the total accounts receivable for Q2 2023?",
+        "sql": "SELECT SUM(total_ar) as total_ar FROM water_data WHERE year = 2023 AND quarter = 'Q2'",
+        "category": "quarterly_aggregation"
+    },
+    {
+        "question": "Which month in 2022 had the lowest water revenue?",
+        "sql": "SELECT month, SUM(water_revenue) as total_revenue FROM water_data WHERE year = 2022 GROUP BY month ORDER BY total_revenue ASC LIMIT 1",
+        "category": "min_by_group"
+    },
+    {
+        "question": "Calculate the percentage of days where debt service coverage exceeded 2.5 in 2024",
+        "sql": "SELECT (COUNT(CASE WHEN debt_service_coverage > 2.5 THEN 1 END) * 100.0 / COUNT(*)) as percentage FROM water_data WHERE year = 2024",
+        "category": "percentage_calculation"
+    },
+    {
+        "question": "Show me all records where revenue variance was negative in Q3 2023",
+        "sql": "SELECT date, actual_revenue, budgeted_revenue, revenue_variance FROM water_data WHERE year = 2023 AND quarter = 'Q3' AND revenue_variance < 0 ORDER BY date",
+        "category": "negative_values"
+    },
+    {
+        "question": "What is the difference between maximum and minimum cost per gallon in 2024?",
+        "sql": "SELECT MAX(cost_per_gallon) - MIN(cost_per_gallon) as difference FROM water_data WHERE year = 2024",
+        "category": "range_calculation"
+    },
+    {
+        "question": "How many records exist for each quarter across all years?",
+        "sql": "SELECT quarter, COUNT(*) as record_count FROM water_data GROUP BY quarter ORDER BY quarter",
+        "category": "group_by_count"
+    },
+    {
+        "question": "Show me dates where both collection rate was above 95% and operating margin was above 20%",
+        "sql": "SELECT date, collection_rate, operating_margin FROM water_data WHERE collection_rate > 0.95 AND operating_margin > 0.20 ORDER BY date",
+        "category": "multiple_conditions"
+    },
+    {
+        "question": "What is the average days sales outstanding for Q4 2022?",
+        "sql": "SELECT AVG(days_sales_outstanding) as avg_dso FROM water_data WHERE year = 2022 AND quarter = 'Q4'",
+        "category": "quarterly_average"
+    },
+    {
+        "question": "Which year had the highest average non-revenue water percentage?",
+        "sql": "SELECT year, AVG(non_revenue_water_pct) as avg_nrw_pct FROM water_data GROUP BY year ORDER BY avg_nrw_pct DESC LIMIT 1",
+        "category": "yearly_comparison"
+    },
+    {
+        "question": "Show me the 10 days with the lowest collection rate in 2023",
+        "sql": "SELECT date, collection_rate FROM water_data WHERE year = 2023 ORDER BY collection_rate ASC LIMIT 10",
+        "category": "bottom_n"
+    },
+    {
+        "question": "What was the total monthly expenses for all of 2022?",
+        "sql": "SELECT SUM(monthly_expenses) as total_expenses FROM water_data WHERE year = 2022",
+        "category": "yearly_sum"
+    },
+    {
+        "question": "Calculate the ratio of actual revenue to budgeted revenue for each quarter in 2023",
+        "sql": "SELECT quarter, SUM(actual_revenue) / SUM(budgeted_revenue) as revenue_ratio FROM water_data WHERE year = 2023 GROUP BY quarter ORDER BY quarter",
+        "category": "ratio_calculation"
+    },
+    {
+        "question": "Show me records where cash reserve was between 3.5 and 5.0 million",
+        "sql": "SELECT date, cash_reserve FROM water_data WHERE cash_reserve BETWEEN 3.5 AND 5.0 ORDER BY date",
+        "category": "range_filter"
+    },
+    {
+        "question": "What is the median operating margin for 2024?",
+        "sql": "SELECT operating_margin FROM water_data WHERE year = 2024 ORDER BY operating_margin LIMIT 1 OFFSET (SELECT COUNT(*) FROM water_data WHERE year = 2024) / 2",
+        "category": "statistical_function"
+    },
+    {
+        "question": "How many days had outstanding debt above 7 million in 2023?",
+        "sql": "SELECT COUNT(*) as days_count FROM water_data WHERE year = 2023 AND outstanding_debt > 7.0",
+        "category": "count_with_threshold"
+    },
+    {
+        "question": "Show me the revenue trend for the first 30 days of 2024",
+        "sql": "SELECT date, actual_revenue FROM water_data WHERE year = 2024 AND date >= '2024-01-01' AND date <= '2024-01-30' ORDER BY date",
+        "category": "date_range"
+    },
+    {
+        "question": "What is the standard deviation of collection rate for 2023?",
+        "sql": "SELECT SQRT(AVG(collection_rate * collection_rate) - AVG(collection_rate) * AVG(collection_rate)) as std_dev FROM water_data WHERE year = 2023",
+        "category": "statistical_analysis"
+    }
+]

@@ -1,0 +1,83 @@
+[
+    {
+        "question": "What was the total actual revenue in 2024?",
+        "sql": "SELECT SUM(actual_revenue) as total_revenue FROM water_data WHERE year = 2024"
+    },
+    {
+        "question": "Show me the revenue variance for Q1 2024",
+        "sql": "SELECT date, actual_revenue, budgeted_revenue, revenue_variance FROM water_data WHERE year = 2024 AND quarter = 'Q1' ORDER BY date"
+    },
+    {
+        "question": "What is the average operating margin for 2023?",
+        "sql": "SELECT AVG(operating_margin) as avg_operating_margin FROM water_data WHERE year = 2023"
+    },
+    {
+        "question": "Which departments had the highest budget variance in 2024?",
+        "sql": "SELECT department, SUM(budget) as total_budget, SUM(actual) as total_actual, SUM(variance) as total_variance FROM departments WHERE date LIKE '2024%' GROUP BY department ORDER BY ABS(total_variance) DESC LIMIT 5"
+    },
+    {
+        "question": "What was the debt service coverage ratio for each quarter in 2024?",
+        "sql": "SELECT quarter, AVG(debt_service_coverage) as avg_coverage FROM water_data WHERE year = 2024 GROUP BY quarter ORDER BY quarter"
+    },
+    {
+        "question": "Show me months with non-revenue water percentage above 25%",
+        "sql": "SELECT date, year, month, non_revenue_water_pct FROM water_data WHERE non_revenue_water_pct > 0.25 ORDER BY date"
+    },
+    {
+        "question": "What is the total outstanding debt as of the latest date?",
+        "sql": "SELECT date, outstanding_debt FROM water_data ORDER BY date DESC LIMIT 1"
+    },
+    {
+        "question": "Which year had the highest total actual revenue?",
+        "sql": "SELECT year, SUM(actual_revenue) as total_revenue FROM water_data GROUP BY year ORDER BY total_revenue DESC LIMIT 1"
+    },
+    {
+        "question": "Show me all alerts with confidence level above 0.8",
+        "sql": "SELECT date, alert_type, description, confidence_level FROM alerts WHERE confidence_level > 0.8 ORDER BY date DESC"
+    },
+    {
+        "question": "What are the projected revenues for all scenarios in 2024?",
+        "sql": "SELECT scenario, AVG(projected_revenue) as avg_projected_revenue FROM scenarios WHERE date LIKE '2024%' GROUP BY scenario"
+    },
+    {
+        "question": "Calculate the collection rate trend over the last 12 months",
+        "sql": "SELECT date, collection_rate FROM water_data ORDER BY date DESC LIMIT 12"
+    },
+    {
+        "question": "What is the average cost per gallon for each quarter?",
+        "sql": "SELECT quarter, AVG(cost_per_gallon) as avg_cost_per_gallon FROM water_data GROUP BY quarter ORDER BY quarter"
+    },
+    {
+        "question": "Show me departments with actual spending exceeding budget by more than 10%",
+        "sql": "SELECT date, department, budget, actual, variance_pct FROM departments WHERE variance_pct > 0.10 ORDER BY variance_pct DESC"
+    },
+    {
+        "question": "What is the cash reserve trend over time?",
+        "sql": "SELECT date, cash_reserve FROM water_data ORDER BY date"
+    },
+    {
+        "question": "Which scenarios show healthy financial viability?",
+        "sql": "SELECT date, scenario, financial_viability FROM scenarios WHERE financial_viability = 'Healthy' OR financial_viability = 'Very Healthy' ORDER BY date DESC"
+    },
+    {
+        "question": "What was the total accounts receivable for 2023?",
+        "sql": "SELECT SUM(total_ar) as total_ar FROM water_data WHERE year = 2023"
+    },
+    {
+        "question": "Show me the monthly revenue and expenses for 2024",
+        "sql": "SELECT date, monthly_revenue, monthly_expenses, monthly_margin FROM water_data WHERE year = 2024 ORDER BY date"
+    },
+    {
+        "question": "What is the average days sales outstanding for each year?",
+        "sql": "SELECT year, AVG(days_sales_outstanding) as avg_dso FROM water_data GROUP BY year ORDER BY year"
+    },
+    {
+        "question": "Which months had the highest water revenue?",
+        "sql": "SELECT date, water_revenue FROM water_data ORDER BY water_revenue DESC LIMIT 10"
+    },
+    {
+        "question": "Show me the debt service coverage ratio compared to required minimum",
+        "sql": "SELECT date, debt_service_coverage, required_minimum, actual_coverage FROM water_data ORDER BY date DESC LIMIT 12"
+    }
+]
+
