@@ -380,38 +380,134 @@ class MyVanna(PineconeVectorStore, OpenAI_Chat):
             str: Natural language summary
         """
         if df is None or df.empty:
+            if question:
+                return f"Based on the question '{question}', no data was found matching the criteria."
             return "No data available to summarize."
         
         try:
             import pandas as pd
             
-            # Simple summary generation
-            summary_parts = []
+            # Prepare data summary for the LLM
+            data_summary = {
+                'row_count': len(df),
+                'column_count': len(df.columns),
+                'columns': list(df.columns),
+                'numeric_columns': list(df.select_dtypes(include=['number']).columns),
+            }
             
-            if question:
-                summary_parts.append(f"Based on the question: '{question}'")
-            
-            summary_parts.append(f"The query returned {len(df)} row(s) with {len(df.columns)} column(s).")
-            
-            # Add key statistics for numeric columns
+            # Get key statistics for numeric columns
+            stats = {}
             numeric_cols = df.select_dtypes(include=['number']).columns
-            if len(numeric_cols) > 0:
-                summary_parts.append("\nKey statistics:")
-                for col in numeric_cols[:5]:  # Limit to first 5 numeric columns
-                    if df[col].notna().any():
-                        summary_parts.append(f"  - {col}: min={df[col].min():.2f}, max={df[col].max():.2f}, avg={df[col].mean():.2f}")
+            for col in numeric_cols[:10]:  # Limit to first 10 numeric columns
+                if df[col].notna().any():
+                    stats[col] = {
+                        'min': float(df[col].min()),
+                        'max': float(df[col].max()),
+                        'mean': float(df[col].mean()),
+                        'sum': float(df[col].sum()) if len(df) > 0 else 0
+                    }
             
-            # Show sample data
-            if len(df) <= 5:
-                summary_parts.append(f"\nData:\n{df.to_string(index=False)}")
+            # Prepare sample data (limit to avoid token limits)
+            if len(df) <= 10:
+                sample_data = df.to_dict('records')
             else:
-                summary_parts.append(f"\nSample data (first 5 rows):\n{df.head(5).to_string(index=False)}")
+                sample_data = df.head(10).to_dict('records')
             
-            return "\n".join(summary_parts)
+            # Create prompt for descriptive summary
+            system_prompt = """You are an expert data analyst specializing in water utility financial and operational data. 
+Your task is to provide clear, descriptive summaries that explain what the data means in business context, 
+not just list statistics. Write in a natural, conversational tone that helps users understand the insights."""
+            
+            user_prompt = f"""Based on the following query results, provide a descriptive summary that explains what the data means.
+
+Question: {question if question else 'Not provided'}
+
+Query Results:
+- Number of rows: {data_summary['row_count']}
+- Columns: {', '.join(data_summary['columns'])}
+"""
+            
+            if stats:
+                user_prompt += "\nKey Statistics:\n"
+                for col, values in stats.items():
+                    user_prompt += f"- {col}: min={values['min']:.2f}, max={values['max']:.2f}, mean={values['mean']:.2f}"
+                    if values['sum'] != 0:
+                        user_prompt += f", total={values['sum']:.2f}"
+                    user_prompt += "\n"
+            
+            user_prompt += f"\nSample Data:\n{json.dumps(sample_data, indent=2, default=str)}"
+            
+            user_prompt += """
+
+Please provide a descriptive summary that:
+1. Answers the question in natural language
+2. Explains what the data means in business context
+3. Highlights key insights and patterns
+4. Uses clear, professional language
+5. Avoids just listing statistics - instead, explain what they mean
+
+Keep the summary concise but informative (2-4 sentences for simple queries, up to a paragraph for complex ones)."""
+            
+            # Generate descriptive summary using OpenAI
+            try:
+                prompt_messages = [
+                    self.system_message(system_prompt),
+                    self.user_message(user_prompt)
+                ]
+                
+                # Use the same model as configured for SQL generation (default to gpt-4o-mini)
+                model = self.config.get('model', 'gpt-4o-mini') if self.config else 'gpt-4o-mini'
+                
+                summary = self.submit_prompt(
+                    prompt_messages,
+                    model=model,
+                    temperature=0.7
+                )
+                
+                if summary and summary.strip():
+                    return summary.strip()
+                else:
+                    # Fallback to basic summary if LLM fails
+                    return self._generate_fallback_summary(question, df, stats)
+                    
+            except Exception as llm_error:
+                self.api_logger.warning(f"LLM summary generation failed, using fallback: {str(llm_error)}")
+                return self._generate_fallback_summary(question, df, stats)
             
         except Exception as e:
             self.api_logger.error(f"Error generating summary: {str(e)}")
             return f"Summary generation failed: {str(e)}"
+    
+    def _generate_fallback_summary(self, question: str = None, df: AnyType = None, stats: dict = None) -> str:
+        """
+        Generate a basic fallback summary when LLM is unavailable.
+        
+        Args:
+            question: Original question
+            df: DataFrame with query results
+            stats: Pre-computed statistics dictionary
+            
+        Returns:
+            str: Basic summary
+        """
+        import pandas as pd
+        
+        summary_parts = []
+        
+        if question:
+            summary_parts.append(f"Based on the question '{question}':")
+        
+        summary_parts.append(f"The query returned {len(df)} row(s) with {len(df.columns)} column(s).")
+        
+        if stats:
+            summary_parts.append("\nKey findings:")
+            for col, values in list(stats.items())[:5]:  # Limit to first 5
+                if 'total' in values and values['total'] != 0:
+                    summary_parts.append(f"  - Total {col}: {values['total']:.2f}")
+                elif 'mean' in values:
+                    summary_parts.append(f"  - Average {col}: {values['mean']:.2f}")
+        
+        return "\n".join(summary_parts)
     
     def get_training_data(self, **kwargs):
         """
