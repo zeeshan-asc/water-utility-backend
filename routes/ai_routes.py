@@ -58,6 +58,7 @@ def ask_question():
         data = request.get_json()
         question = data.get('question', '').strip()
         run_sql = data.get('run_sql', True)
+        history = data.get('history')
         
         if not question:
             return jsonify({
@@ -65,14 +66,14 @@ def ask_question():
                 'error': 'Question is required'
             }), 400
         
-        logger.info(f"[{g.request_id}] AI question received: '{question[:100]}...'")
+        logger.info(f"[{g.request_id}] AI question received: '{question[:100]}...' with {len(history) if history else 0} context turns")
         
         # Get Vanna instance
         vanna = get_vanna_instance()
         
-        # Generate SQL with allow_llm_to_see_data=True
+        # Generate SQL with allow_llm_to_see_data=True and history
         logger.info(f"[{g.request_id}] Generating SQL for question...")
-        sql = vanna.generate_sql(question, allow_llm_to_see_data=True)
+        sql = vanna.generate_sql(question, allow_llm_to_see_data=True, history=history)
         
         response_data = {
             'success': True,
@@ -178,17 +179,26 @@ def generate_sql():
                 'error': 'Question parameter is required'
             }), 400
         
-        logger.info(f"[{g.request_id}] Generate SQL requested: '{question[:100]}...'")
+        # Get history if provided
+        history = data.get('history') if request.method == 'POST' else None
+        
+        logger.info(f"[{g.request_id}] Generate SQL requested: '{question[:100]}...' with {len(history) if history else 0} context turns")
         
         # Get Vanna instance
         vanna = get_vanna_instance()
         
-        # Generate SQL with allow_llm_to_see_data=True
-        sql = vanna.generate_sql(question, allow_llm_to_see_data=True)
+        # Generate SQL with allow_llm_to_see_data=True and history
+        sql = vanna.generate_sql(question, allow_llm_to_see_data=True, history=history)
+        
+        # Also generate the "Contextual Understanding" question if history exists
+        contextual_question = None
+        if history and len(history) > 0:
+            contextual_question = vanna.contextualize_question(question, history=history)
         
         return jsonify({
             'success': True,
             'question': question,
+            'contextual_question': contextual_question,
             'sql': sql,
             'type': 'sql' if vanna._last_response_type == 'sql' else 'text'
         }), 200

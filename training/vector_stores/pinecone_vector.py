@@ -253,7 +253,7 @@ class PineconeVectorStore:
             self.logger.error(f"Error adding question-SQL pair: {e}")
             raise
     
-    def get_related_ddl(self, text: str) -> List[str]:
+    def get_related_ddl(self, text: str, **kwargs) -> List[str]:
         """
         Get related DDL statements based on text similarity.
         
@@ -286,7 +286,7 @@ class PineconeVectorStore:
             self.logger.error(f"Error getting related DDL: {e}")
             return []
     
-    def get_related_documentation(self, text: str) -> List[str]:
+    def get_related_documentation(self, text: str, **kwargs) -> List[str]:
         """
         Get related documentation based on text similarity.
         
@@ -319,7 +319,7 @@ class PineconeVectorStore:
             self.logger.error(f"Error getting related documentation: {e}")
             return []
     
-    def get_similar_question_sql(self, question: str) -> List[Dict[str, str]]:
+    def get_similar_question_sql(self, question: str, **kwargs) -> List[Dict[str, str]]:
         """
         Get similar question-SQL pairs based on question similarity.
         
