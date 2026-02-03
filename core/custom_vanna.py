@@ -177,7 +177,8 @@ class MyVanna(PineconeVectorStore, OpenAI_Chat):
             initial_prompt=initial_prompt,
             user_message_func=self.user_message,
             assistant_message_func=self.assistant_message,
-            system_message_func=self.system_message
+            system_message_func=self.system_message,
+            history=kwargs.get('history')
         )
         
         self.sql_logger.info(f"SQLPromptService.build_sql_prompt() completed. Returned {len(result)} messages")
@@ -229,6 +230,50 @@ class MyVanna(PineconeVectorStore, OpenAI_Chat):
         
         self.api_logger.info(f"SQL generated successfully: {result[:100] if result else 'None'}...")
         return result
+    
+    def contextualize_question(self, question: str, history: List[Dict[str, Any]] = None) -> str:
+        """
+        Rephrase the current question based on conversation history.
+        
+        Args:
+            question: The current follow-up question
+            history: Previous turns
+            
+        Returns:
+            str: The expanded, contextualized question
+        """
+        if not history:
+            return question
+            
+        self.api_logger.info(f"Contextualizing question: '{question}' with history")
+        
+        system_prompt = "You are a helpful assistant that rephrases follow-up questions to be standalone, based on the conversation history. Do not answer the question, just rephrase it."
+        
+        user_prompt = "Conversation History:\n"
+        for turn in history:
+            prev_q = turn.get('question')
+            prev_a = turn.get('summary') or turn.get('text') or turn.get('sql')
+            if prev_q and prev_a:
+                user_prompt += f"User: {prev_q}\nAI: {prev_a}\n"
+        
+        user_prompt += f"\nCurrent follow-up question: {question}\n"
+        user_prompt += "\nPlease rephrase the current follow-up question to be a complete, standalone question that captures the user's full intent. Return ONLY the rephrased question text."
+        
+        try:
+            messages = [
+                self.system_message(system_prompt),
+                self.user_message(user_prompt)
+            ]
+            
+            rephrased = self.submit_prompt(messages, model='gpt-4o-mini', temperature=0)
+            
+            if rephrased and rephrased.strip():
+                self.api_logger.info(f"Rephrased question: {rephrased.strip()}")
+                return rephrased.strip()
+        except Exception as e:
+            self.api_logger.warning(f"Failed to contextualize question: {str(e)}")
+            
+        return question
     
     def extract_sql(self, llm_response: str) -> str:
         """
@@ -416,7 +461,9 @@ class MyVanna(PineconeVectorStore, OpenAI_Chat):
             # Create prompt for descriptive summary
             system_prompt = """You are an expert data analyst specializing in water utility financial and operational data. 
 Your task is to provide clear, descriptive summaries that explain what the data means in business context, 
-not just list statistics. Write in a natural, conversational tone that helps users understand the insights."""
+not just list statistics. IMPORTANT: All financial values (Revenue, Expense, Budget, etc.) are in Millions of US Dollars ($M). 
+Always refer to these values in Millions (e.g., $29.33M) in your summaries.
+Write in a natural, conversational tone that helps users understand the insights."""
             
             user_prompt = f"""Based on the following query results, provide a descriptive summary that explains what the data means.
 

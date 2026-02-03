@@ -79,6 +79,7 @@ class SQLPromptService:
         return (
             f"You are {self.expertise_label}. "
             "Please help to generate a SQL query to answer the question. "
+            "IMPORTANT: All financial currency values in the database (such as Revenue, Expense, Budget, Debt, etc.) are represented in Millions of US Dollars ($M). For example, a value of 29.33 represents $29.33 Million. "
             "Your response should ONLY be based on the given context and follow the response guidelines and format instructions. "
         )
     
@@ -187,7 +188,8 @@ class SQLPromptService:
         user_message_func: Any = None,
         assistant_message_func: Any = None,
         system_message_func: Any = None,
-        filter_data: Optional[Dict[str, Any]] = None
+        filter_data: Optional[Dict[str, Any]] = None,
+        history: Optional[List[Dict[str, Any]]] = None
     ) -> List[Dict[str, str]]:
         """
         Build complete SQL generation prompt.
@@ -204,6 +206,7 @@ class SQLPromptService:
             assistant_message_func: Function to format assistant messages
             system_message_func: Function to format system messages
             filter_data: Optional filter extraction data
+            history: Optional conversation history
             
         Returns:
             List[Dict[str, str]]: Message log in Vanna format
@@ -236,6 +239,18 @@ class SQLPromptService:
             if example and "question" in example and "sql" in example:
                 message_log.append(user_message_func(example["question"]))
                 message_log.append(assistant_message_func(example["sql"]))
+        
+        # Add conversation history
+        if history:
+            self.logger.info(f"Adding {len(history)} history turns to prompt")
+            for turn in history:
+                prev_q = turn.get('question')
+                # Use SQL if available, otherwise use summary/text as the assistant's previous "answer"
+                prev_a = turn.get('sql') or turn.get('summary') or turn.get('text')
+                
+                if prev_q and prev_a:
+                    message_log.append(user_message_func(str(prev_q)))
+                    message_log.append(assistant_message_func(str(prev_a)))
         
         # Add the actual user question
         message_log.append(user_message_func(question))
